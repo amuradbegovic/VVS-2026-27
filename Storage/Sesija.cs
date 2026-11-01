@@ -1,23 +1,25 @@
 using System;
+using System.Text;
 
 namespace LoanManagement.Storage
 {
-    public class Sesija
+    public static class Sesija
     {
-        public static int UserId = 0;
-        public static string Username = "";
-        public static string Role = "";
-        public static string Token = "";
+        public static int UserId { get; set; } = 0;
+        public static string Username { get; set; } = "";
+        public static string Role { get; set; } = "";
+        public static string Token { get; set; } = "";
 
         public static string NapraviToken()
         {
             Random r = new Random();
             string slova = "abcdefghijklmnopqrstuvwxyz0123456789";
-            string t = "";
+            StringBuilder bld = new StringBuilder();
             for (int i = 0; i < 16; i++)
             {
-                t = t + slova[r.Next(0, slova.Length)];
+                bld.Append(slova[r.Next(0, slova.Length)]);
             }
+            string t = bld.ToString();
             return t;
         }
 
