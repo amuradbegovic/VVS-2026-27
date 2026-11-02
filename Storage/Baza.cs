@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Microsoft.Data.Sqlite;
 
 namespace LoanManagement.Storage
@@ -12,8 +13,6 @@ namespace LoanManagement.Storage
         private SqliteConnection NovaVeza()
         {
             SqliteConnectionStringBuilder b = new SqliteConnectionStringBuilder(CONN);
-            string fajl = b.DataSource;
-            string sifra = b.Password;
             b.Password = "";
             return new SqliteConnection(b.ConnectionString);
         }
@@ -134,10 +133,12 @@ namespace LoanManagement.Storage
                 SqliteCommand cmd = new SqliteCommand(sql, con);
                 cmd.Parameters.AddWithValue("@ime", "%" + ime + "%");
                 SqliteDataReader rd = cmd.ExecuteReader();
+                StringBuilder bld = new StringBuilder();
                 while (rd.Read())
                 {
-                    rez = rez + rd.GetValue(0) + " | " + rd.GetValue(1) + " | " + rd.GetValue(2) + "\n";
+                    bld.Append(rd.GetValue(0) + " | " + rd.GetValue(1) + " | " + rd.GetValue(2) + "\n");
                 }
+                rez = bld.ToString();
                 rd.Close();
                 con.Close();
             }
