@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "LoanManagement": {
+      "commandName": "Project",
+      "commandLineArgs": "--demo"
+    }
+  }
+}
