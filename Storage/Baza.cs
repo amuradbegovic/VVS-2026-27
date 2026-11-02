@@ -125,13 +125,14 @@ namespace LoanManagement.Storage
 
         public string TraziKupce(string ime)
         {
-            string sql = "SELECT Id, Name, Email FROM Customers WHERE Name LIKE '%" + ime + "%'";
+            string sql = "SELECT Id, Name, Email FROM Customers WHERE Name LIKE @ime";
             string rez = "";
             try
             {
                 SqliteConnection con = NovaVeza();
                 con.Open();
                 SqliteCommand cmd = new SqliteCommand(sql, con);
+                cmd.Parameters.AddWithValue("@ime", "%" + ime + "%");
                 SqliteDataReader rd = cmd.ExecuteReader();
                 while (rd.Read())
                 {
@@ -150,13 +151,14 @@ namespace LoanManagement.Storage
 
         public int ObrisiKupca(string id)
         {
-            string sql = "DELETE FROM Customers WHERE Id = " + id;
+            string sql = "DELETE FROM Customers WHERE Id = @id";
             int obrisano = 0;
             try
             {
                 SqliteConnection con = NovaVeza();
                 con.Open();
                 SqliteCommand cmd = new SqliteCommand(sql, con);
+                cmd.Parameters.AddWithValue("@id", id);
                 obrisano = cmd.ExecuteNonQuery();
                 con.Close();
             }
