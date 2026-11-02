@@ -1,4 +1,5 @@
 using System;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace LoanManagement.Storage
@@ -12,15 +13,12 @@ namespace LoanManagement.Storage
 
         public static string NapraviToken()
         {
-            Random r = new Random();
-            string slova = "abcdefghijklmnopqrstuvwxyz0123456789";
-            StringBuilder bld = new StringBuilder();
-            for (int i = 0; i < 16; i++)
+            byte[] tokenData = new byte[32];  // 256 bita entropije
+            using (var rng = RandomNumberGenerator.Create())
             {
-                bld.Append(slova[r.Next(0, slova.Length)]);
+                rng.GetBytes(tokenData);
             }
-            string t = bld.ToString();
-            return t;
+            return Convert.ToBase64String(tokenData);
         }
 
         public static bool JeLogovan()
