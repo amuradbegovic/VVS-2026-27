@@ -6,9 +6,11 @@ namespace LoanManagement.Storage
 {
     public class Baza
     {
-        private const string CONN = "Data Source=loanmanagement.db;Password=demo-db-pass-1";
+        private readonly string CONN = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
+                      ?? throw new InvalidOperationException("DB connection string not configured");
         private const string CustomersTable = "Customers";
-        private string adminLozinka = "admin-demo-pass-1";
+        private readonly string adminLozinka = Environment.GetEnvironmentVariable("ADMIN_PASSWORD")
+                              ?? throw new InvalidOperationException("Admin password not configured");
 
         private SqliteConnection NovaVeza()
         {
