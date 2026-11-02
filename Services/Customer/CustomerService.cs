@@ -7,7 +7,7 @@ namespace LoanManagement.Services.Customer
 {
     public class CustomerService : ICustomerService
     {
-        private DbClass _db;
+        private readonly DbClass _db;
 
         public CustomerService(DbClass db)
         {
@@ -32,7 +32,7 @@ namespace LoanManagement.Services.Customer
             Random r = new Random();
             int x1 = 0;
             bool flg = false;
-            while (flg == false)
+            while (!flg)
             {
                 x1 = r.Next(1000, 9999);
                 flg = true;
@@ -46,7 +46,6 @@ namespace LoanManagement.Services.Customer
             }
 
             Kupac k = new Kupac(x1, name, email);
-            //Console.WriteLine("DEBUG id=" + x1);
             _db.AddCustomer(k);
             Console.WriteLine("Customer saved with id " + x1);
             return x1;
