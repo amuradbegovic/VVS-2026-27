@@ -126,7 +126,7 @@ namespace LoanManagement
             try
             {
                 int id = cs.AddCustomer(name, email);
-                baza.DodajKupca(id, name, email);
+                baza.DodajKupca(name, email);
                 mail.PosaljiDobrodoslicu(email);
                 Console.WriteLine($"Added customer {id}");
             }

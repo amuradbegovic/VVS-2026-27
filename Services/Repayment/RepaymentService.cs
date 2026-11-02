@@ -8,7 +8,7 @@ namespace LoanManagement.Services.Repayment
 {
     public class RepaymentService : IRepaymentService
     {
-        private DbClass _db;
+        private readonly DbClass _db;
 
         public RepaymentService(DbClass db)
         {
@@ -94,20 +94,11 @@ namespace LoanManagement.Services.Repayment
                 throw new InvalidOperationException("Customer " + customerId + " has no loan");
             }
 
-            Random r = new Random();
-            int x1 = 0;
-            bool flg = false;
-            while (flg == false)
+            // Generate next ID using AUTOINCREMENT pattern (max existing + 1)
+            int x1 = 1;
+            if (_db.Payments.Count > 0)
             {
-                x1 = r.Next(1000, 9999);
-                flg = true;
-                for (int j = 0; j < _db.Payments.Count; j++)
-                {
-                    if (_db.Payments[j].Id == x1)
-                    {
-                        flg = false;
-                    }
-                }
+                x1 = _db.Payments[_db.Payments.Count - 1].Id + 1;
             }
 
             Payment pay = new Payment(x1, nadjen.Id, amount, paymentDate);

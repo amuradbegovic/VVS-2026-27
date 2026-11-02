@@ -24,12 +24,14 @@ namespace LoanManagement.Storage
             SqliteConnection con = NovaVeza();
             con.Open();
 
-            SqliteCommand c1 = new SqliteCommand("CREATE TABLE IF NOT EXISTS Customers (Id INTEGER PRIMARY KEY, Name TEXT NOT NULL, Email TEXT NOT NULL)", con);
+            SqliteCommand c1 = new SqliteCommand("CREATE TABLE IF NOT EXISTS Customers (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, Email TEXT NOT NULL)", con);
             c1.ExecuteNonQuery();
             SqliteCommand c2 = new SqliteCommand("CREATE TABLE IF NOT EXISTS Users (Id INTEGER PRIMARY KEY AUTOINCREMENT, Username TEXT NOT NULL UNIQUE, PasswordHash TEXT NOT NULL, Role TEXT NOT NULL)", con);
             c2.ExecuteNonQuery();
-            SqliteCommand c3 = new SqliteCommand("CREATE TABLE IF NOT EXISTS Loans (Id INTEGER PRIMARY KEY, CustomerId INTEGER NOT NULL, Principal REAL NOT NULL, InterestRate REAL NOT NULL, TermInYears INTEGER NOT NULL, MonthlyPayment REAL NOT NULL, StartDate TEXT NOT NULL)", con);
+            SqliteCommand c3 = new SqliteCommand("CREATE TABLE IF NOT EXISTS Loans (Id INTEGER PRIMARY KEY AUTOINCREMENT, CustomerId INTEGER NOT NULL, Principal REAL NOT NULL, InterestRate REAL NOT NULL, TermInYears INTEGER NOT NULL, MonthlyPayment REAL NOT NULL, StartDate TEXT NOT NULL)", con);
             c3.ExecuteNonQuery();
+            SqliteCommand c4 = new SqliteCommand("CREATE TABLE IF NOT EXISTS Payments (Id INTEGER PRIMARY KEY AUTOINCREMENT, LoanId INTEGER NOT NULL, Amount REAL NOT NULL, PaymentDate TEXT NOT NULL)", con);
+            c4.ExecuteNonQuery();
 
             SqliteCommand cnt = new SqliteCommand("SELECT COUNT(*) FROM Users", con);
             long broj = (long)cnt.ExecuteScalar();
@@ -41,8 +43,7 @@ namespace LoanManagement.Storage
                 string[] mailovi = { "amra@example.com", "emir@example.com", "lejla@example.com", "tarik@example.com", "selma@example.com" };
                 for (int i = 0; i < 5; i++)
                 {
-                    SqliteCommand ins = new SqliteCommand("INSERT INTO Customers (Id, Name, Email) VALUES (@id, @n, @e)", con);
-                    ins.Parameters.AddWithValue("@id", 1001 + i);
+                    SqliteCommand ins = new SqliteCommand("INSERT INTO Customers (Name, Email) VALUES (@n, @e)", con);
                     ins.Parameters.AddWithValue("@n", imena[i]);
                     ins.Parameters.AddWithValue("@e", mailovi[i]);
                     ins.ExecuteNonQuery();
@@ -68,9 +69,8 @@ namespace LoanManagement.Storage
                     double mr = kamate[i] / 100 / 12;
                     int n = godine[i] * 12;
                     double rata = iznosi[i] * mr * Math.Pow(1 + mr, n) / (Math.Pow(1 + mr, n) - 1);
-                    SqliteCommand ins = new SqliteCommand("INSERT INTO Loans (Id, CustomerId, Principal, InterestRate, TermInYears, MonthlyPayment, StartDate) VALUES (@id, @c, @p, @k, @g, @r, @d)", con);
-                    ins.Parameters.AddWithValue("@id", 5001 + i);
-                    ins.Parameters.AddWithValue("@c", 1001 + i);
+                    SqliteCommand ins = new SqliteCommand("INSERT INTO Loans (CustomerId, Principal, InterestRate, TermInYears, MonthlyPayment, StartDate) VALUES (@c, @p, @k, @g, @r, @d)", con);
+                    ins.Parameters.AddWithValue("@c", 1 + i);
                     ins.Parameters.AddWithValue("@p", iznosi[i]);
                     ins.Parameters.AddWithValue("@k", kamate[i]);
                     ins.Parameters.AddWithValue("@g", godine[i]);
@@ -105,23 +105,29 @@ namespace LoanManagement.Storage
             return rez;
         }
 
-        public void DodajKupca(int id, string name, string email)
+        public int DodajKupca(string name, string email)
         {
+            int generatedId = -1;
             try
             {
                 SqliteConnection con = NovaVeza();
                 con.Open();
-                SqliteCommand cmd = new SqliteCommand("INSERT INTO Customers (Id, Name, Email) VALUES (@id, @n, @e)", con);
-                cmd.Parameters.AddWithValue("@id", id);
+                SqliteCommand cmd = new SqliteCommand("INSERT INTO Customers (Name, Email) VALUES (@n, @e)", con);
                 cmd.Parameters.AddWithValue("@n", name);
                 cmd.Parameters.AddWithValue("@e", email);
                 cmd.ExecuteNonQuery();
+
+                // Get the last inserted row ID
+                SqliteCommand getIdCmd = new SqliteCommand("SELECT last_insert_rowid()", con);
+                generatedId = Convert.ToInt32(getIdCmd.ExecuteScalar());
+
                 con.Close();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
+            return generatedId;
         }
 
         public string TraziKupce(string ime)

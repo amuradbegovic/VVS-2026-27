@@ -1,6 +1,7 @@
+using LoanManagement.Data;
 using System;
 using System.Collections.Generic;
-using LoanManagement.Data;
+using System.ComponentModel.DataAnnotations;
 using Kupac = LoanManagement.Models.Customer;
 
 namespace LoanManagement.Services.Customer
@@ -24,31 +25,21 @@ namespace LoanManagement.Services.Customer
             {
                 throw new ArgumentException("Name is empty");
             }
-            if (email.IndexOf("@") < 0)
+            var emailValidator = new EmailAddressAttribute();
+            if (!emailValidator.IsValid(email))
             {
-                throw new ArgumentException("Email is not valid");
+                throw new ArgumentException("Email address is not valid");
             }
 
-            Random r = new Random();
-            int x1 = 0;
-            bool flg = false;
-            while (!flg)
-            {
-                x1 = r.Next(1000, 9999);
-                flg = true;
-                for (int i = 0; i < _db.Customers.Count; i++)
-                {
-                    if (_db.Customers[i].Id == x1)
-                    {
-                        flg = false;
-                    }
-                }
-            }
-
-            Kupac k = new Kupac(x1, name, email);
+            // Let the database handle ID generation via AUTOINCREMENT
+            Kupac k = new Kupac(0, name, email);  // ID will be 0 for now, will be set by DB
             _db.AddCustomer(k);
-            Console.WriteLine("Customer saved with id " + x1);
-            return x1;
+
+            // Note: For in-memory database, we need to get the ID differently
+            // In a real scenario with persistent DB, DodajKupca returns the ID
+            int customerId = _db.Customers[_db.Customers.Count - 1].Id;
+            Console.WriteLine("Customer saved with id " + customerId);
+            return customerId;
         }
 
         public string GetCustomerDetails(int customerId)

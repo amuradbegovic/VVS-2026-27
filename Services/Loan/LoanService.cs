@@ -10,7 +10,7 @@ namespace LoanManagement.Services.Loan
 {
     public class LoanService : ILoanService
     {
-        private DbClass _db;
+        private readonly DbClass _db;
 
         public LoanService(DbClass db)
         {
@@ -96,7 +96,9 @@ namespace LoanManagement.Services.Loan
                 throw new InvalidOperationException("Customer " + customerId + " does not exist");
             }
 
-            for (int i = 0; i < loanResults.Count; )
+            int lastLoanId = -1;
+
+            for (int i = 0; i < loanResults.Count; i++)
             {
                 double[] podaci = new double[5];
                 podaci[0] = loanResults[i].Principal;
@@ -116,20 +118,11 @@ namespace LoanManagement.Services.Loan
                     Console.WriteLine("Payment was recalculated: " + podaci[3]);
                 }
 
-                Random r = new Random();
-                int x1 = 0;
-                bool flg = false;
-                while (flg == false)
+                // Generate next ID using AUTOINCREMENT pattern (max existing + 1)
+                int x1 = 1;
+                if (_db.Loans.Count > 0)
                 {
-                    x1 = r.Next(1000, 9999);
-                    flg = true;
-                    for (int j = 0; j < _db.Loans.Count; j++)
-                    {
-                        if (_db.Loans[j].Id == x1)
-                        {
-                            flg = false;
-                        }
-                    }
+                    x1 = _db.Loans[_db.Loans.Count - 1].Id + 1;
                 }
 
                 Kredit l = new Kredit(x1, customerId, podaci[0], podaci[1], (int)podaci[2], podaci[3], startDate);
@@ -138,9 +131,10 @@ namespace LoanManagement.Services.Loan
 
                 RepaymentService rs = new RepaymentService(_db);
                 rs.ProcessPayment(customerId, podaci[3], startDate);
-                return x1;
+                lastLoanId = x1;
             }
-            return -1;
+
+            return lastLoanId;
         }
     }
 }
