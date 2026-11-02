@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using LoanManagement.Data;
 using LoanManagement.Models;
 using Kredit = LoanManagement.Models.Loan;
@@ -27,7 +28,6 @@ namespace LoanManagement.Services.Repayment
             double ukupnoUplaceno = 0;
             int cnt = 0;
             bool flg = false;
-            string log = "";
 
             // total of all payments
             for (int i = 0; i < _db.Payments.Count; i++)
@@ -60,7 +60,6 @@ namespace LoanManagement.Services.Repayment
                         pv = pv * Math.Pow(1 + mr, 1);
                     }
                     bal = bal - pv;
-                    log = log + "p" + i + "=" + pv + ";";
                 }
             }
 
@@ -69,7 +68,7 @@ namespace LoanManagement.Services.Repayment
                 bal = 0;
                 flg = true;
             }
-            if (DateTime.Now > l.StartDate.AddYears(l.TermInYears) && (flg == false || cnt == 0))
+            if (DateTime.Now > l.StartDate.AddYears(l.TermInYears) && (!flg || cnt == 0))
             {
                 Console.WriteLine("Loan " + loanId + " is past its term and still owes " + bal);
             }
@@ -80,13 +79,12 @@ namespace LoanManagement.Services.Repayment
         {
             // payment goes to the newest loan of the customer
             Kredit nadjen = null;
-            //Customer ccc = _db.GetCustomer(customerId);
             for (int i = 0; i < _db.Loans.Count; i++)
             {
                 if (_db.Loans[i].CustomerId == customerId)
                 {
                     nadjen = _db.Loans[i];
-                    i = _db.Loans.Count;
+                    break;
                 }
             }
             if (nadjen == null)
