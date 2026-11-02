@@ -4,8 +4,10 @@ namespace LoanManagement.Storage
 {
     public class MailStub
     {
-        private string apiKljuc = "demo-mail-key-0000-0000";
-        private string url = "https://mail.example.invalid/send";
+        private readonly string apiKljuc = Environment.GetEnvironmentVariable("MAIL_API_KEY")
+                      ?? throw new InvalidOperationException("Mail API key not configured");
+        private readonly string url = Environment.GetEnvironmentVariable("MAIL_SERVICE_URL")
+                      ?? throw new InvalidOperationException("Mail service URL not configured");
 
         public string PosaljiDobrodoslicu(string email)
         {
